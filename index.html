@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#16181a">
+<meta name="description" content="Unofficial checklist and tracker for the Minecraft PS5 trophy list. Progress is saved in your browser.">
+<title>Minecraft PS5 Trophy Tracker</title>
+<style>
+:root{
+  --bg:#16181a; --panel:#1f2326; --line:#363c41; --fg:#eceff1; --mut:#a2abb2;
+  --accent:#6cc36c; --accent-ink:#0d1a0d;
+  --bronze:#d9914f; --silver:#c9d0d8; --gold:#ffd24a; --plat:#7fd6ff;
+}
+*{box-sizing:border-box}
+html{color-scheme:dark}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:760px;margin:0 auto;padding:16px}
+h1{font-size:22px;margin:8px 0 4px}
+.sub{color:var(--mut);margin:0 0 16px;font-size:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+.big{font-size:28px;font-weight:700}
+.big small{font-size:16px;color:var(--mut);font-weight:400}
+.bar{height:12px;background:var(--bg);border:1px solid var(--line);border-radius:8px;overflow:hidden;margin:8px 0 12px}
+#barFill{height:100%;width:0;background:var(--accent);transition:width .3s}
+@media (prefers-reduced-motion:reduce){#barFill{transition:none}}
+.types{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+@media (min-width:520px){.types{grid-template-columns:repeat(4,1fr)}}
+.tcount{display:flex;align-items:center;gap:8px;font-size:14px}
+.dot{width:12px;height:12px;border-radius:3px;flex:none}
+.B .dot,.dot.B{background:var(--bronze)}.S .dot,.dot.S{background:var(--silver)}
+.G .dot,.dot.G{background:var(--gold)}.P .dot,.dot.P{background:var(--plat)}
+input[type=search]{width:100%;font:inherit;padding:12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--fg)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.chip{font:inherit;font-size:14px;padding:8px 12px;border-radius:999px;border:1px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
+.chip[aria-pressed=true]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+.opts{display:flex;flex-wrap:wrap;gap:16px;font-size:14px}
+.opts label{display:flex;align-items:center;gap:8px;cursor:pointer}
+input[type=checkbox]{accent-color:var(--accent)}
+:focus-visible{outline:3px solid var(--plat);outline-offset:2px}
+details.pack{background:var(--panel);border:1px solid var(--line);border-radius:12px;margin-bottom:10px}
+details.pack>summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;gap:8px;padding:14px;font-weight:600}
+details.pack>summary::-webkit-details-marker{display:none}
+.cnt{color:var(--mut);font-weight:400;font-variant-numeric:tabular-nums}
+ul{list-style:none;margin:0;padding:0}
+.t{display:flex;gap:4px;padding:2px 10px 10px 4px;border-top:1px solid var(--line)}
+.chk{display:flex;padding:12px 10px;cursor:pointer}
+.chk input{width:26px;height:26px;margin:0;cursor:pointer}
+.body{flex:1;min-width:0;padding-top:10px}
+.top{display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center}
+.name{font-weight:600;overflow-wrap:anywhere}
+.t.done .name{text-decoration:line-through;color:var(--mut)}
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--mut);border:1px solid var(--line);border-radius:999px;padding:1px 8px}
+.badge .dot{width:9px;height:9px}
+.flag{font-size:12px;color:var(--gold);border:1px solid var(--gold);border-radius:999px;padding:1px 8px}
+.desc{color:var(--mut);font-size:14px;margin-top:2px}
+details.tip{margin-top:6px;font-size:14px}
+details.tip>summary{cursor:pointer;color:var(--accent);width:max-content}
+details.tip p{margin:6px 0 0}
+.empty{color:var(--mut);text-align:center;padding:24px}
+button.act{font:inherit;font-size:14px;padding:10px 14px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--fg);cursor:pointer}
+.foot{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 8px}
+.note{color:var(--mut);font-size:13px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Minecraft PS5 Trophy Tracker</h1>
+  <p class="sub">Unofficial fan checklist. Not affiliated with Mojang, Microsoft or Sony. Progress is saved in this browser only.</p>
+
+  <section class="card" aria-label="Progress">
+    <div class="big"><span id="doneN">0</span> <small>of <span id="totalN">0</span> earned</small></div>
+    <div class="bar" role="progressbar" aria-label="Overall progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="bar"><div id="barFill"></div></div>
+    <div class="types" id="types"></div>
+  </section>
+
+  <section class="card" aria-label="Filters">
+    <input id="q" type="search" placeholder="Search trophies" aria-label="Search trophies" autocomplete="off">
+    <div class="chips" role="group" aria-label="Filter by type" id="chips"></div>
+    <div class="opts">
+      <label><input type="checkbox" id="hide"> Hide earned</label>
+      <label><input type="checkbox" id="mp"> Needs another player</label>
+    </div>
+  </section>
+
+  <main id="list"></main>
+
+  <div class="foot">
+    <button class="act" id="export">Export progress</button>
+    <button class="act" id="import">Import progress</button>
+    <button class="act" id="reset">Reset all</button>
+    <input type="file" id="file" accept="application/json" hidden>
+  </div>
+  <p class="note">Trophy list from a community tracker (137 trophies including the platinum). Sony's own list is the authority, and tips are general Minecraft knowledge, not an official guide. This page can't read your PSN profile, so tick trophies off yourself.</p>
+</div>
+<noscript><p class="wrap">This tracker needs JavaScript.</p></noscript>
+
+<script src="data.js"></script>
+<script>
+(function(){
+  var STORE='mc-ps5-trophies-v1';
+  var TYPES={P:'Platinum',G:'Gold',S:'Silver',B:'Bronze'};
+  var ORDER=['P','G','S','B'];
+
+  // Flatten once: every trophy gets a stable id (its index) and a storage key.
+  var ALL=[];
+  window.MC_TROPHIES.forEach(function(g){
+    g.items.forEach(function(it){
+      ALL.push({pack:g.pack,name:it[0],type:it[1],desc:it[2],flag:it[3]||0,key:g.pack+'|'+it[0]});
+    });
+  });
+  var VALID={};ALL.forEach(function(t){VALID[t.key]=true;});
+
+  var done={};
+  try{var raw=JSON.parse(localStorage.getItem(STORE)||'{}');Object.keys(raw).forEach(function(k){if(VALID[k]&&raw[k])done[k]=true;});}catch(e){}
+  function save(){try{localStorage.setItem(STORE,JSON.stringify(done));}catch(e){}}
+
+  var f={q:'',type:'',hide:false,mp:false};
+  var closed={}; // packs the user collapsed
+
+  function $(id){return document.getElementById(id);}
+  function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+
+  // ---- progress
+  function progress(){
+    var total=ALL.length,got=ALL.filter(function(t){return done[t.key];}).length;
+    $('doneN').textContent=got;$('totalN').textContent=total;
+    var pct=total?Math.round(got/total*100):0;
+    $('barFill').style.width=pct+'%';$('bar').setAttribute('aria-valuenow',pct);
+    $('types').innerHTML=ORDER.map(function(k){
+      var of=ALL.filter(function(t){return t.type===k;}),n=of.filter(function(t){return done[t.key];}).length;
+      return '<div class="tcount '+k+'"><span class="dot"></span><span>'+TYPES[k]+' '+n+'/'+of.length+'</span></div>';
+    }).join('');
+  }
+
+  // ---- list
+  function visible(t){
+    if(f.type&&t.type!==f.type)return false;
+    if(f.hide&&done[t.key])return false;
+    if(f.mp&&!t.flag)return false;
+    if(f.q){var h=(t.name+' '+t.desc+' '+t.pack).toLowerCase();if(h.indexOf(f.q)<0)return false;}
+    return true;
+  }
+  function render(focusId){
+    var html='',shown=0,packs=[];
+    ALL.forEach(function(t,i){
+      var p=packs[packs.length-1];
+      if(!p||p.name!==t.pack){p={name:t.pack,ids:[]};packs.push(p);}
+      p.ids.push(i);
+    });
+    packs.forEach(function(p){
+      var rows=p.ids.filter(function(i){return visible(ALL[i]);});
+      if(!rows.length)return;
+      var got=p.ids.filter(function(i){return done[ALL[i].key];}).length;
+      html+='<details class="pack" data-pack="'+esc(p.name)+'"'+(closed[p.name]?'':' open')+'><summary><span>'+esc(p.name)+'</span><span class="cnt">'+got+'/'+p.ids.length+'</span></summary><ul>';
+      rows.forEach(function(i){
+        var t=ALL[i],d=!!done[t.key],tip=window.MC_TIPS&&window.MC_TIPS[t.name];
+        shown++;
+        html+='<li class="t'+(d?' done':'')+'"><label class="chk"><input type="checkbox" data-i="'+i+'"'+(d?' checked':'')+' aria-label="Earned: '+esc(t.name)+'"></label>'+
+          '<div class="body"><div class="top"><span class="name">'+esc(t.name)+'</span>'+
+          '<span class="badge"><span class="dot '+t.type+'"></span>'+TYPES[t.type]+'</span>'+
+          (t.flag===1?'<span class="flag">Needs another player</span>':t.flag===2?'<span class="flag">May need another player</span>':'')+
+          '</div><div class="desc">'+esc(t.desc)+'</div>'+
+          (tip?'<details class="tip"><summary>Tip</summary><p>'+esc(tip)+'</p></details>':'')+
+          '</div></li>';
+      });
+      html+='</ul></details>';
+    });
+    $('list').innerHTML=shown?html:'<p class="empty">No trophies match these filters.</p>';
+    if(focusId!=null){var el=document.querySelector('[data-i="'+focusId+'"]');if(el)el.focus();}
+    progress();
+  }
+
+  // ---- events
+  $('list').addEventListener('change',function(e){
+    var el=e.target;if(!el.matches||!el.matches('input[type=checkbox][data-i]'))return;
+    var t=ALL[+el.getAttribute('data-i')];
+    if(el.checked)done[t.key]=true;else delete done[t.key];
+    save();render(el.getAttribute('data-i'));
+  });
+  $('list').addEventListener('toggle',function(e){
+    var d=e.target;if(d.classList&&d.classList.contains('pack')){
+      var n=d.getAttribute('data-pack');if(d.open)delete closed[n];else closed[n]=true;
+    }
+  },true);
+
+  $('q').addEventListener('input',function(e){f.q=e.target.value.trim().toLowerCase();render();});
+  $('hide').addEventListener('change',function(e){f.hide=e.target.checked;render();});
+  $('mp').addEventListener('change',function(e){f.mp=e.target.checked;render();});
+
+  var chips=[['','All']].concat(ORDER.map(function(k){return [k,TYPES[k]];}));
+  $('chips').innerHTML=chips.map(function(c){return '<button class="chip" data-t="'+c[0]+'" aria-pressed="'+(c[0]===''?'true':'false')+'">'+c[1]+'</button>';}).join('');
+  $('chips').addEventListener('click',function(e){
+    var b=e.target.closest('button[data-t]');if(!b)return;
+    f.type=b.getAttribute('data-t');
+    Array.prototype.forEach.call($('chips').children,function(x){x.setAttribute('aria-pressed',x===b?'true':'false');});
+    render();
+  });
+
+  $('export').addEventListener('click',function(){
+    var blob=new Blob([JSON.stringify({version:1,done:done},null,2)],{type:'application/json'});
+    var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='minecraft-ps5-progress.json';
+    document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href);},1000);
+  });
+  $('import').addEventListener('click',function(){$('file').click();});
+  $('file').addEventListener('change',function(e){
+    var file=e.target.files[0];if(!file)return;
+    var r=new FileReader();
+    r.onload=function(){
+      try{
+        var j=JSON.parse(r.result),src=j&&j.done?j.done:j,n=0;
+        Object.keys(src).forEach(function(k){if(VALID[k]&&src[k]){done[k]=true;n++;}});
+        save();render();alert('Imported '+n+' earned trophies.');
+      }catch(err){alert('That file is not a progress export.');}
+    };
+    r.readAsText(file);e.target.value='';
+  });
+  $('reset').addEventListener('click',function(){
+    if(confirm('Clear all earned trophies on this device?')){done={};save();render();}
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
